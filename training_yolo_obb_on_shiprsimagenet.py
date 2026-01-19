@@ -19,7 +19,7 @@ Script to Train a Yolo-Obb Model on a Custom ShipRSImageNet Dataset
 
 # Loading Dataset From Roboflow
 from roboflow import Roboflow
-rf = Roboflow(api_key="REMOVED")
+rf = Roboflow(api_key="PUT_YOUR_API_KEY_HERE")
 project = rf.workspace("vessels-tracking").project("ship-detection-thdbg")
 version = project.version(2)
 dataset = version.download("yolov8-obb")
