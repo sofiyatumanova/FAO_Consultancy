@@ -8,7 +8,7 @@ Original file is located at
 
 Script to Train a Yolo-Obb Model on a Custom ShipRSImageNet Dataset
 """
-
+-----------------------------
 # Clone Ultralytics YOLOv8 repo (OBB version if available)
 !pip install ultralytics
 !pip install roboflow
@@ -17,6 +17,7 @@ Script to Train a Yolo-Obb Model on a Custom ShipRSImageNet Dataset
 # Check GPU
 !nvidia-smi
 
+-----------------------------
 # Loading Dataset From Roboflow
 from roboflow import Roboflow
 rf = Roboflow(api_key="PUT_YOUR_API_KEY_HERE")
@@ -24,6 +25,7 @@ project = rf.workspace("vessels-tracking").project("ship-detection-thdbg")
 version = project.version(2)
 dataset = version.download("yolov8-obb")
 
+-----------------------------
 # Changing the classes from 50 original to 13 superclasses
 import os
 
@@ -61,6 +63,7 @@ for split in splits:
                 f.write("\n".join(new_lines))
     print(f"Updated labels in {split}/labels")
 
+-----------------------------
 # Updating the data.yaml file to match the new classes
 import yaml
 
@@ -97,18 +100,21 @@ with open(yaml_path, "w") as f:
 
 print(f"Updated YAML saved at {yaml_path} with {len(new_classes)} classes.")
 
+-----------------------------
 # Mounting Drive to save Model Checkpoints
 from google.colab import drive
 drive.mount('/content/drive')
 
 project_path = "/content/drive/MyDrive/ShipRS_YOLO_OBB_training"
 
+-----------------------------
 # Importing the Object Detection Model
 from ultralytics import YOLO
 
 # Load pretrained OBB model
 model = YOLO("yolov8m-obb.pt")
 
+-----------------------------
 # Training the Model
 # - task="obb" ensures oriented boxes are predicted
 # - imgsz = 1024 → keep images square (good for OBB)
@@ -127,6 +133,7 @@ model.train(
     patience=30
 )
 
+-----------------------------#back up code#-----------------------------
 # RESUMING THE CODE AFTER THE GPU LIMIT FINISHED
 from google.colab import drive
 drive.mount('/content/drive')
@@ -145,7 +152,9 @@ model.train(
     name="exp_obb",
     resume=True
 )
+-----------------------------#back up code#-----------------------------
 
+-----------------------------
 # Validate on validation set
 val_results = model.val(
     data="/content/Ship-Detection-2/data.yaml",
@@ -158,6 +167,7 @@ val_results = model.val(
 print("Validation Results:")
 print(val_results)
 
+-----------------------------
 # Testing the model results on "unseen" test images
 test_results = model.predict(
     source="/content/Ship-Detection-2/test/images",
@@ -168,9 +178,9 @@ test_results = model.predict(
     conf=0.25
 )
 
+-----------------------------
 # Copying prediction images to Drive
 import shutil
-import os
 
 src = "/content/runs/obb/predict"
 dst = "/content/drive/MyDrive/ShipRS_YOLO_OBB_training/predictions"
@@ -180,6 +190,8 @@ shutil.copytree(src, dst, dirs_exist_ok=True)
 
 print("Predictions saved to:", dst)
 
+-----------------------------
+# Displaying predicted test images (optional)
 from IPython.display import display
 from PIL import Image
 import glob
@@ -189,6 +201,7 @@ image_files = glob.glob("/content/runs/obb/predict/*.jpg")
 for img_path in image_files[:20]:  # show first 20
     display(Image.open(img_path))
 
+-----------------------------
 # Test metrics
 # Validate on the test set to get metrics
 test_results = model.val(
@@ -199,8 +212,7 @@ test_results = model.val(
     split="test"  # Ensures it validates on the test split
 )
 
-# Zip the best.pt weights and download the model locally
-
+-----------------------------
 # Saving all the metrics to an excel file in DRIVE
 import pandas as pd
 
@@ -270,6 +282,7 @@ with pd.ExcelWriter(excel_file, engine="openpyxl") as writer:
 
 print(f"Validation and test metrics saved to {excel_file}")
 
+-----------------------------
 # Save predictions in YOLO format
 predictions = model.predict(
     source="/content/Ship-Detection-2/test/images",  # your test images
@@ -280,10 +293,8 @@ predictions = model.predict(
     exist_ok=True
 )
 
+-----------------------------
 # Additing test images and labels for iterative dataset improvement
-import shutil
-import os
-
 # Your project path in Drive
 project_path = "/content/drive/MyDrive/ShipRS_YOLO_OBB_training"
 
