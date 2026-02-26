@@ -19,7 +19,7 @@ PROJECT_DIR = "/content/drive/MyDrive/yolo_ship_phase1_training_version2"
 !pip install -U ultralytics roboflow
 
 from roboflow import Roboflow
-rf = Roboflow(api_key="dlxXDRPqz3KC3kUZpByk")
+rf = Roboflow(api_key="ENTER_API_KEY_HERE")
 project = rf.workspace("vessels-tracking").project("ship-detection-2-evz92")
 version = project.version(1)
 dataset = version.download("yolov8-obb")
