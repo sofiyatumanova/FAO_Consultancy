@@ -30,21 +30,11 @@ test_results = model.predict(
     imgsz=1024,
     batch=4,
     conf=0.25,
-    save=True,       # save images with boxes
-    save_txt=True    # save predicted labels as .txt
+    save=True,        # save images with boxes
+    save_txt=True,    # save predicted labels as .txt
+    save_conf =True   # very important for filtering out various confidence levels later on
 )
 
-results = model.predict(
-    source=test_images,
-    task="obb",
-    imgsz=1024,
-    batch=4,
-    conf=0.25,
-    iou=0.25,
-    agnostic_nms=True,
-    save_txt=True,   # 👈 THIS is the key
-    save=True
-)
 
 import os
 from IPython.display import display, Image
@@ -55,28 +45,7 @@ for img_file in sorted(os.listdir(pred_dir))[0:20]:
     if img_file.lower().endswith((".jpg", ".png")):
         display(Image(filename=os.path.join(pred_dir, img_file)))
 
-import os
-from IPython.display import display, Image
 
-pred_dir = "/content/runs/obb/predict"
-label_dir = os.path.join(pred_dir, "labels")
-fishing_class_id = "0"  # class ID for fishing vessel
-
-# Get all label files
-label_files = sorted(os.listdir(label_dir))
-
-for label_file in label_files:
-    label_path = os.path.join(label_dir, label_file)
-
-    # Check if the label file contains any fishing vessels
-    with open(label_path) as f:
-        if any(line.startswith(fishing_class_id + " ") for line in f):
-            # Map label file to predicted image
-            img_name = label_file.replace(".txt", ".jpg")
-            img_path = os.path.join(pred_dir, img_name)
-
-            if os.path.exists(img_path):
-                display(Image(filename=img_path))
 
 from PIL import Image
 import os, shutil
@@ -106,14 +75,15 @@ for f in os.listdir(src_labels):
 
 print("JPG images and OBB labels prepared for Roboflow.")
 
+
 import shutil
-
 base_out = "/content/678_roboflow_ready"
-
 shutil.make_archive("/content/678_roboflow_ready", "zip", base_out)
+
 
 from google.colab import files
 files.download("/content/678_roboflow_ready.zip")
+
 
 import shutil
 import os
